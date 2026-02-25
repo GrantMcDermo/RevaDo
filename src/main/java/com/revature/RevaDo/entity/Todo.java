@@ -19,10 +19,10 @@ public class Todo {
     private String taskDescription;
     private Boolean status;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User taskCreator;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "todo_item")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "todo_item", orphanRemoval = true)
     @JsonManagedReference
     private List<Subtask> subtasks;
 }

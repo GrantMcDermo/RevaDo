@@ -17,7 +17,7 @@ public class Subtask {
     private String subtaskDescription;
     private Boolean status;
     @ManyToOne
-    @JoinColumn(name = "todo_item_id")
+    @JoinColumn(name = "todo_item_id", nullable = false)
     @JsonBackReference
     private Todo primaryTask;
 }
