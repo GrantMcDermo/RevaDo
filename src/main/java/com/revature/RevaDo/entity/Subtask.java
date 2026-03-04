@@ -13,9 +13,9 @@ public class Subtask {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String subtaskName;
-    private String subtaskDescription;
-    private Boolean status;
+    private String title;
+    private String description;
+    private Boolean completed;
     @ManyToOne
     @JoinColumn(name = "todo_item_id", nullable = false)
     @JsonBackReference

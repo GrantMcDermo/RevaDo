@@ -9,7 +9,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class SubtaskResponseDTO {
     private UUID id;
-    private String subtaskName;
-    private String subtaskDescription;
-    private Boolean status;
+    private String title;
+    private String description;
+    private Boolean completed;
 }

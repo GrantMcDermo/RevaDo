@@ -6,26 +6,29 @@ import com.revature.RevaDo.entity.Subtask;
 import com.revature.RevaDo.entity.Todo;
 import com.revature.RevaDo.repository.SubtaskRepository;
 import com.revature.RevaDo.repository.TodoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SubtaskService {
 
     private final SubtaskRepository repo;
     private final TodoRepository taskRepo;
 
     public SubtaskResponseDTO createSubtask(UUID taskId, UUID userId, SubtaskRequestDTO request){
-        Todo task = taskRepo.findByIdAndUserId(taskId, userId)
+        Todo task = taskRepo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
         Subtask subtask = new Subtask();
-        subtask.setSubtaskName(request.getSubtaskName());
-        subtask.setSubtaskDescription(request.getSubtaskDescription());
+        subtask.setTitle(request.getTitle());
+        subtask.setDescription(request.getDescription());
         subtask.setPrimaryTask(task);
-        subtask.setStatus(false);
+        subtask.setCompleted(false);
 
         Subtask saved = repo.save(subtask);
 
@@ -33,10 +36,10 @@ public class SubtaskService {
     }
 
     public SubtaskResponseDTO updateSubtask(UUID subtaskId, UUID userId, SubtaskRequestDTO request){
-        Subtask subtask = repo.findByIdAndTodoUserId(subtaskId, userId)
+        Subtask subtask = repo.findByIdAndPrimaryTask_TaskCreator_Id(subtaskId, userId)
                 .orElseThrow(() -> new RuntimeException("Subtask not found!"));
-        subtask.setSubtaskName(request.getSubtaskName());
-        subtask.setSubtaskDescription(request.getSubtaskDescription());
+        subtask.setTitle(request.getTitle());
+        subtask.setDescription(request.getDescription());
         Subtask saved = repo.save(subtask);
 
         return mapToDTO(saved);
@@ -45,10 +48,10 @@ public class SubtaskService {
     public SubtaskResponseDTO markSubtaskComplete(UUID subtaskId, UUID userId) {
 
         Subtask subtask = repo
-                .findByIdAndTodoUserId(subtaskId, userId)
+                .findByIdAndPrimaryTask_TaskCreator_Id(subtaskId, userId)
                 .orElseThrow(() -> new RuntimeException("Subtask not found"));
 
-        subtask.setStatus(true);
+        subtask.setCompleted(true);
 
         Subtask saved = repo.save(subtask);
 
@@ -58,27 +61,34 @@ public class SubtaskService {
     }
 
     public void deleteSubtask(UUID subtaskId, UUID userId){
-        Subtask subtask = repo.findByIdAndTodoUserId(subtaskId, userId).orElseThrow(() -> new RuntimeException("Subtask not found"));
+        Subtask subtask = repo.findByIdAndPrimaryTask_TaskCreator_Id(subtaskId, userId).orElseThrow(() -> new RuntimeException("Subtask not found"));
         repo.delete(subtask);
     }
 
     private void autoCompleteParentIfNecessary(Todo task) {
 
+        List<Subtask> subtasks = task.getSubtasks();
+
+        if(subtasks.isEmpty()){
+            return;
+        }
+
         boolean allComplete = task.getSubtasks()
                 .stream()
-                .allMatch(Subtask::getStatus);
+                .allMatch(Subtask::getCompleted);
 
-        if (allComplete) {
-            task.setStatus(true);
+        if (allComplete && !task.getCompleted()) {
+            task.setCompleted(true);
+            taskRepo.save(task);
         }
     }
 
     private SubtaskResponseDTO mapToDTO(Subtask subtask){
         return new SubtaskResponseDTO(
                 subtask.getId(),
-                subtask.getSubtaskName(),
-                subtask.getSubtaskDescription(),
-                subtask.getStatus()
+                subtask.getTitle(),
+                subtask.getDescription(),
+                subtask.getCompleted()
         );
     }
 

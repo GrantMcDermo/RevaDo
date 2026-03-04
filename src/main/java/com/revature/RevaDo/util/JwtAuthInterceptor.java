@@ -16,19 +16,27 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
-        String token = request.getHeader("Authorization");
-        System.out.println(token);
-        if(token != null){
-            try {
-                String id = jwtUtil.extractId(token);
-                String username = jwtUtil.extractUsername(token);
-                return true;
-            } catch (Exception e){
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return false;
-            }
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("INTERCEPTED: " + request.getRequestURI());
+        System.out.println(authHeader);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
         }
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        return false;
+
+        try {
+            String token = authHeader.substring(7);
+            System.out.println("Token: " + token);
+            String id = jwtUtil.extractId(token);
+            System.out.println("Extracted userId: " + id);
+            String username = jwtUtil.extractUsername(token);
+            System.out.println("Extracted username: " + username);
+            request.setAttribute("userId", id);
+            request.setAttribute("username", username);
+            return true;
+        } catch (Exception e){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return false;
+        }
     }
 }

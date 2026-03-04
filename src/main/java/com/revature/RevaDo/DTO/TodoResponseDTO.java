@@ -10,8 +10,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TodoResponseDTO {
     private UUID id;
-    private String taskName;
-    private String taskDescription;
-    private Boolean status;
+    private String title;
+    private String description;
+    private Boolean completed;
     private List<SubtaskResponseDTO> subtasks;
 }

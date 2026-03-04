@@ -1,6 +1,6 @@
 package com.revature.RevaDo.controller;
 
-import com.revature.RevaDo.entity.User;
+import com.revature.RevaDo.DTO.AuthRequest;
 import com.revature.RevaDo.exception.AuthFail;
 import com.revature.RevaDo.exception.LoginFail;
 import com.revature.RevaDo.service.UserService;
@@ -19,8 +19,8 @@ public class AuthController {
     private final UserService service;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> attemptLogin(@RequestBody User credentials){
-        return ResponseEntity.status(HttpStatus.OK).body(service.validateCredentials(credentials));
+    public ResponseEntity<Map<String, String>> attemptLogin(@RequestBody AuthRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(service.validateCredentials(request));
     }
 
     @ExceptionHandler(LoginFail.class)

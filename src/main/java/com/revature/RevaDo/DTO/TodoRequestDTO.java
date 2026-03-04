@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class TodoRequestDTO {
     @NotBlank
-    private String taskName;
-    private String taskDescription;
+    private String title;
+    private String description;
+    private Boolean completed;
 }

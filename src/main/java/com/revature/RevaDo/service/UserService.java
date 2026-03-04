@@ -1,5 +1,6 @@
 package com.revature.RevaDo.service;
 
+import com.revature.RevaDo.DTO.AuthRequest;
 import com.revature.RevaDo.entity.User;
 import com.revature.RevaDo.exception.AuthFail;
 import com.revature.RevaDo.exception.LoginFail;
@@ -7,7 +8,6 @@ import com.revature.RevaDo.repository.UserRepository;
 import com.revature.RevaDo.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -20,12 +20,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository repo;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public Map<String, String> validateCredentials(User credentials){
-        String username = credentials.getUsername();
-        String password = credentials.getPassword();
+    public Map<String, String> validateCredentials(AuthRequest request){
+        String username = request.getUsername();
+        String password = request.getPassword();
         Map<String, String> responseMap = new HashMap<>();
         Optional<User> user = repo.findByUsernameAndPassword(username, password);
         if(user.isPresent()){
@@ -43,9 +42,10 @@ public class UserService {
         }
         try{
             System.out.println(token);
-            String id = jwtUtil.extractId(token);
+            String tokenSplit = token.split(" ")[1];
+            String id = jwtUtil.extractId(tokenSplit);
             System.out.println(id);
-            String username = jwtUtil.extractUsername(token);
+            String username = jwtUtil.extractUsername(tokenSplit);
             System.out.println(username);
             Optional<User> user = repo.findById(UUID.fromString(id));
             if(user.isPresent()){
@@ -61,7 +61,7 @@ public class UserService {
     public User register(String username, String password){
         User user = new User();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(password);
         user.setRole("ROLE_USER");
         return repo.save(user);
     }

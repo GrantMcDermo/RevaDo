@@ -2,12 +2,11 @@ package com.revature.RevaDo.controller;
 
 import com.revature.RevaDo.DTO.TodoRequestDTO;
 import com.revature.RevaDo.DTO.TodoResponseDTO;
-import com.revature.RevaDo.entity.CustomUserDetails;
 import com.revature.RevaDo.service.TodoService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,35 +19,38 @@ public class TodoController {
     private final TodoService service;
 
     @PostMapping
-    public ResponseEntity<TodoResponseDTO> createTask(@AuthenticationPrincipal CustomUserDetails user, @Valid @RequestBody TodoRequestDTO request){
-        return ResponseEntity.ok(service.createTask(user.getId(), request));
+    public ResponseEntity<TodoResponseDTO> createTask(HttpServletRequest request, @Valid @RequestBody TodoRequestDTO requestDTO){
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        return ResponseEntity.ok(service.createTask(userId, requestDTO));
     }
 
     @GetMapping
-    public ResponseEntity<List<TodoResponseDTO>> getTasks(@AuthenticationPrincipal CustomUserDetails user){
-        return ResponseEntity.ok(service.getUserTasks(user.getId()));
+    public ResponseEntity<List<TodoResponseDTO>> getTasks(HttpServletRequest request){
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        return ResponseEntity.ok(service.getUserTasks(userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id, @AuthenticationPrincipal CustomUserDetails user){
-        service.deleteTask(id, user.getId());
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID id, HttpServletRequest request){
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        service.deleteTask(id, userId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public TodoResponseDTO updateTodo(
             @PathVariable UUID id,
-            @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody TodoRequestDTO request
+            HttpServletRequest request,
+            @Valid @RequestBody TodoRequestDTO requestDTO
     ) {
-        return service.updateTask(id, user.getId(), request);
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        return service.updateTask(id, userId, requestDTO);
     }
 
 
     @PatchMapping("/{id}/complete")
-    public ResponseEntity<TodoResponseDTO> markTaskComplete(@PathVariable UUID id, @AuthenticationPrincipal CustomUserDetails user){
-        return ResponseEntity.ok(service.markTaskComplete(id, user.getId()));
+    public ResponseEntity<TodoResponseDTO> markTaskComplete(@PathVariable UUID id, HttpServletRequest request){
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        return ResponseEntity.ok(service.markTaskComplete(id, userId));
     }
-
-
 }

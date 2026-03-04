@@ -10,7 +10,9 @@ import com.revature.RevaDo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,58 +25,59 @@ public class TodoService {
     public TodoResponseDTO createTask(UUID userId, TodoRequestDTO request){
         User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Todo task = new Todo();
-        task.setTaskName(request.getTaskName());
-        task.setTaskDescription(request.getTaskDescription());
-        task.setStatus(false);
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setCompleted(false);
         task.setTaskCreator(user);
         return mapToDTO(repo.save(task));
     }
 
     public List<TodoResponseDTO> getUserTasks(UUID userId){
-        return repo.findAllByUserId(userId)
+        return repo.findAllByTaskCreator_Id(userId)
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
     }
     public TodoResponseDTO updateTask(UUID taskId, UUID userId, TodoRequestDTO request){
-        Todo task = repo.findByIdAndUserId(taskId, userId)
+        Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        task.setTaskName(request.getTaskName());
-        task.setTaskDescription(request.getTaskDescription());
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
         return mapToDTO(repo.save(task));
     }
 
     public TodoResponseDTO markTaskComplete(UUID taskId, UUID userId){
-        Todo task = repo.findByIdAndUserId(taskId, userId)
+        Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setStatus(true);
+        task.setCompleted(true);
         return mapToDTO(repo.save(task));
 
     }
 
     public void deleteTask(UUID taskId, UUID userId){
-        Todo task = repo.findByIdAndUserId(taskId, userId)
+        Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         repo.delete(task);
     }
 
     private TodoResponseDTO mapToDTO(Todo task){
-        List<SubtaskResponseDTO> subtasks = task.getSubtasks()
+        List<SubtaskResponseDTO> subtasks = Optional.ofNullable(task.getSubtasks())
+                .orElse(Collections.emptyList())
                 .stream()
                 .map(s -> new SubtaskResponseDTO(
                         s.getId(),
-                        s.getSubtaskName(),
-                        s.getSubtaskDescription(),
-                        s.getStatus()
+                        s.getTitle(),
+                        s.getDescription(),
+                        s.getCompleted()
                 ))
                 .toList();
 
         return new TodoResponseDTO(
                 task.getId(),
-                task.getTaskName(),
-                task.getTaskDescription(),
-                task.getStatus(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getCompleted(),
                 subtasks
         );
     }

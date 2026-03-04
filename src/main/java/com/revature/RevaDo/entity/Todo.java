@@ -15,14 +15,14 @@ public class Todo {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String taskName;
-    private String taskDescription;
-    private Boolean status;
+    private String title;
+    private String description;
+    private Boolean completed;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User taskCreator;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "todo_item", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "primaryTask", orphanRemoval = true)
     @JsonManagedReference
     private List<Subtask> subtasks;
 }

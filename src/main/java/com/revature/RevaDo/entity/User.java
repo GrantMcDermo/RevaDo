@@ -19,7 +19,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     private String role;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "taskCreator")
     @JsonManagedReference
     private List<Todo> todoItems;
 }
