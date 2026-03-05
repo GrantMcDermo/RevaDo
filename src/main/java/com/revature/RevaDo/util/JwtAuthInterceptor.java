@@ -16,6 +16,10 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
         String authHeader = request.getHeader("Authorization");
         System.out.println("INTERCEPTED: " + request.getRequestURI());
         System.out.println(authHeader);

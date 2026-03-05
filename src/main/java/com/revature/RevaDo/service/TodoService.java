@@ -7,8 +7,11 @@ import com.revature.RevaDo.entity.Todo;
 import com.revature.RevaDo.entity.User;
 import com.revature.RevaDo.repository.TodoRepository;
 import com.revature.RevaDo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,17 +50,19 @@ public class TodoService {
         return mapToDTO(repo.save(task));
     }
 
+    @Transactional
     public TodoResponseDTO markTaskComplete(UUID taskId, UUID userId){
         Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setCompleted(true);
+        Boolean status = task.getCompleted();
+        task.setCompleted(!status);
         return mapToDTO(repo.save(task));
 
     }
 
     public void deleteTask(UUID taskId, UUID userId){
         Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found!"));
         repo.delete(task);
     }
 

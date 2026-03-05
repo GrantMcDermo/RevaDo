@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +18,15 @@ import java.util.UUID;
 public class SubtaskController {
 
     private final SubtaskService service;
+
+    @GetMapping("/task/{taskId}")
+    public ResponseEntity<List<SubtaskResponseDTO>> getSubtasksForTask(
+            @PathVariable UUID taskId,
+            HttpServletRequest request
+    ) {
+        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
+        return ResponseEntity.ok(service.getSubtasksForTask(taskId, userId));
+    }
 
     @PostMapping("/task/{taskId}")
     public ResponseEntity<SubtaskResponseDTO> createSubtask(

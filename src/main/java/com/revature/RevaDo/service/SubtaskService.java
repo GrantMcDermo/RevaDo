@@ -8,7 +8,9 @@ import com.revature.RevaDo.repository.SubtaskRepository;
 import com.revature.RevaDo.repository.TodoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +22,14 @@ public class SubtaskService {
 
     private final SubtaskRepository repo;
     private final TodoRepository taskRepo;
+
+    public List<SubtaskResponseDTO> getSubtasksForTask(UUID taskId, UUID userId){
+        taskRepo.findByIdAndTaskCreator_Id(taskId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found!"));
+        return repo.findAllByPrimaryTask_Id(taskId).stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
 
     public SubtaskResponseDTO createSubtask(UUID taskId, UUID userId, SubtaskRequestDTO request){
         Todo task = taskRepo.findByIdAndTaskCreator_Id(taskId, userId)
@@ -50,8 +60,8 @@ public class SubtaskService {
         Subtask subtask = repo
                 .findByIdAndPrimaryTask_TaskCreator_Id(subtaskId, userId)
                 .orElseThrow(() -> new RuntimeException("Subtask not found"));
-
-        subtask.setCompleted(true);
+        Boolean status = subtask.getCompleted();
+        subtask.setCompleted(!status);
 
         Subtask saved = repo.save(subtask);
 

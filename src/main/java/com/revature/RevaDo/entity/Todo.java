@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,5 +25,5 @@ public class Todo {
     private User taskCreator;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "primaryTask", orphanRemoval = true)
     @JsonManagedReference
-    private List<Subtask> subtasks;
+    private List<Subtask> subtasks = new ArrayList<>();
 }
