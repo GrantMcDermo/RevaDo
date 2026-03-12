@@ -50,6 +50,7 @@ public class TodoService {
         return mapToDTO(repo.save(task));
     }
 
+    //It toggles the completed status on or off.
     @Transactional
     public TodoResponseDTO markTaskComplete(UUID taskId, UUID userId){
         Todo task = repo.findByIdAndTaskCreator_Id(taskId, userId)
@@ -67,6 +68,9 @@ public class TodoService {
     }
 
     private TodoResponseDTO mapToDTO(Todo task){
+        //Since our list could be null, it is wrapped in Optional.ofNullable() to prevent a null pointer exception.
+        //If there are simply no subtasks yet, we ensures it returns an empty list.
+        //Then a stream is created to map each subtask to a subtaskResponseDTO.
         List<SubtaskResponseDTO> subtasks = Optional.ofNullable(task.getSubtasks())
                 .orElse(Collections.emptyList())
                 .stream()

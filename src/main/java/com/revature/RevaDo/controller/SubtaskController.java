@@ -19,23 +19,13 @@ public class SubtaskController {
 
     private final SubtaskService service;
 
-    @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<SubtaskResponseDTO>> getSubtasksForTask(
-            @PathVariable UUID taskId,
-            HttpServletRequest request
-    ) {
-        UUID userId = UUID.fromString((String) request.getAttribute("userId"));
-        return ResponseEntity.ok(service.getSubtasksForTask(taskId, userId));
-    }
-
     @PostMapping("/task/{taskId}")
     public ResponseEntity<SubtaskResponseDTO> createSubtask(
             @PathVariable UUID taskId,
             HttpServletRequest request,
             @Valid @RequestBody SubtaskRequestDTO requestDTO){
         UUID userId = UUID.fromString((String) request.getAttribute("userId"));
-        SubtaskResponseDTO response = service.createSubtask(taskId, userId, requestDTO);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.createSubtask(taskId, userId, requestDTO));
     }
 
 

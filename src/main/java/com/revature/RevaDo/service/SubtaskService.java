@@ -23,14 +23,6 @@ public class SubtaskService {
     private final SubtaskRepository repo;
     private final TodoRepository taskRepo;
 
-    public List<SubtaskResponseDTO> getSubtasksForTask(UUID taskId, UUID userId){
-        taskRepo.findByIdAndTaskCreator_Id(taskId, userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found!"));
-        return repo.findAllByPrimaryTask_Id(taskId).stream()
-                .map(this::mapToDTO)
-                .toList();
-    }
-
     public SubtaskResponseDTO createSubtask(UUID taskId, UUID userId, SubtaskRequestDTO request){
         Todo task = taskRepo.findByIdAndTaskCreator_Id(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
@@ -75,6 +67,7 @@ public class SubtaskService {
         repo.delete(subtask);
     }
 
+    //If it detects that all subtasks of a given task are marked as complete, then the main task will auto-complete.
     private void autoCompleteParentIfNecessary(Todo task) {
 
         List<Subtask> subtasks = task.getSubtasks();

@@ -14,6 +14,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         this.jwtUtil = jwtUtil;
     }
 
+    //
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

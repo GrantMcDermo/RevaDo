@@ -11,5 +11,4 @@ import java.util.UUID;
 @Repository
 public interface SubtaskRepository extends JpaRepository<Subtask, UUID> {
     Optional<Subtask> findByIdAndPrimaryTask_TaskCreator_Id(UUID subtaskId, UUID userId);
-    List<Subtask> findAllByPrimaryTask_Id(UUID taskId);
 }

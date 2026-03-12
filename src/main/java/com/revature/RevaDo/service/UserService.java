@@ -22,6 +22,9 @@ public class UserService {
     private final UserRepository repo;
     private final JwtUtil jwtUtil;
 
+    /*
+    Logging in will generate the JWT, and then is attached to requests using an HTTP interceptor.
+     */
     public Map<String, String> validateCredentials(AuthRequest request){
         String username = request.getUsername();
         String password = request.getPassword();
